@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#0b0c11">
+  <title>WOLF • Moderação</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+
+<body>
+  <main class="shell">
+
+    <header class="header">
+      <div class="mark">W</div>
+
+      <div>
+        <p class="overline">WOLF • CENTRAL DE SEGURANÇA</p>
+        <h1>Painel de Moderação</h1>
+      </div>
+
+      <span class="live">
+        <i></i> SISTEMA ONLINE
+      </span>
+    </header>
+
+    <section class="hero">
+      <div>
+        <span class="pill">
+          REGISTRO DE ABUSO • USO RESPONSÁVEL
+        </span>
+
+        <h2>
+          Organize denúncias<br>
+          <em>de forma responsável.</em>
+        </h2>
+
+        <p>
+          Registre ocorrências de spam, golpes, ameaças ou
+          impersonação para acompanhamento. Este sistema não
+          envia denúncias ao WhatsApp nem aplica banimentos.
+        </p>
+      </div>
+
+      <div class="shield" aria-hidden="true">🛡️</div>
+    </section>
+
+    <section class="grid">
+
+      <form class="panel" id="report-form">
+
+        <div class="panel-heading">
+          <div>
+            <span class="overline">NOVA OCORRÊNCIA</span>
+            <h3>Registrar caso</h3>
+          </div>
+
+          <span class="step">01</span>
+        </div>
+
+        <label for="number">
+          Número (com código do país)
+        </label>
+
+        <input
+          id="number"
+          name="number"
+          type="tel"
+          inputmode="tel"
+          placeholder="+55 21 99999-9999"
+          required
+        >
+
+        <label for="reason">Categoria</label>
+
+        <select id="reason" name="reason" required>
+          <option value="">Selecione uma categoria</option>
+          <option>Spam ou golpe</option>
+          <option>Assédio ou ameaça</option>
+          <option>Impersonação</option>
+          <option>Outro abuso</option>
+        </select>
+
+        <label for="notes">
+          Descrição / evidência
+        </label>
+
+        <textarea
+          id="notes"
+          name="notes"
+          rows="4"
+          maxlength="500"
+          placeholder="Descreva brevemente o ocorrido…"
+        ></textarea>
+
+        <button class="primary" type="submit">
+          Registrar ocorrência <span>→</span>
+        </button>
+
+        <p class="hint">
+          O registro fica neste servidor. Para denunciar uma
+          conta de verdade, use as opções de denúncia dentro
+          do WhatsApp.
+        </p>
+
+        <div class="feedback" id="feedback" role="status"></div>
+
+      </form>
+
+      <section class="panel history">
+
+        <div class="panel-heading">
+          <div>
+            <span class="overline">ACOMPANHAMENTO</span>
+            <h3>Registros recentes</h3>
+          </div>
+
+          <span class="step">02</span>
+        </div>
+
+        <div class="stats">
+          <div>
+            <strong id="count">0</strong>
+            <span>ocorrências</span>
+          </div>
+
+          <div>
+            <strong>Local</strong>
+            <span>status do registro</span>
+          </div>
+        </div>
+
+        <div id="records" class="records">
+          <div class="empty">
+            Nenhum registro por enquanto.
+          </div>
+        </div>
+
+        <button class="secondary" id="refresh" type="button">
+          Atualizar lista
+        </button>
+
+      </section>
+
+    </section>
+
+    <footer>
+      WOLF • Painel independente de registro — não afiliado ao WhatsApp.
+      <br>
+      Não use para perseguição, denúncias falsas ou banimentos em massa.
+    </footer>
+
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>
