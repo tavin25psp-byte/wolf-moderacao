@@ -1,0 +1,13 @@
+{
+  "name": "wolf-moderacao-whatsapp",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Painel demonstrativo de registro e triagem de denúncias legítimas",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
