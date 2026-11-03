@@ -1,24 +1,24 @@
 <script>
-  let totalProcessado = 0;
+  let totalProcessadoGlobal = 0;
 
-  // Aguarda o DOM carregar completamente antes de anexar o evento
+  // Intercepta o envio do formulário
   document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('bulk-form');
     if (form) {
       form.addEventListener('submit', function(e) {
         e.preventDefault();
-        iniciarEnvioMassa();
+        executarEnvioWhatsApp();
       });
     }
   });
 
-  // Função global disparada pelo botão "Denúncias em massa"
+  // Função global acionada pelo botão "Denúncias em massa"
   function ativarDenuncias() {
-    iniciarEnvioMassa();
+    executarEnvioWhatsApp();
   }
 
-  // Função central de execução e feedback em lote
-  function iniciarEnvioMassa() {
+  // Função principal de comunicação e disparos
+  async function executarEnvioWhatsApp() {
     const numeroInput = document.getElementById('bulk-number');
     const categoriaSelect = document.getElementById('bulk-reason');
     const quantidadeInput = document.getElementById('bulk-quantity');
@@ -30,7 +30,6 @@
     const submitBtn = document.querySelector('.primary');
     const bulkBtn = document.querySelector('.btn-denuncias');
 
-    // Validação estrita dos campos obrigatórios
     if (!numeroInput || !numeroInput.value.trim()) {
       alert('Por favor, informe o número de referência.');
       if (numeroInput) numeroInput.focus();
@@ -47,42 +46,68 @@
     const categoria = categoriaSelect.value;
     const quantidade = parseInt(quantidadeInput.value, 10) || 5;
 
-    // Desativa temporariamente os botões para evitar múltiplos disparos simultâneos
+    // Desativa os botões para evitar duplo clique
     if (submitBtn) submitBtn.disabled = true;
     if (bulkBtn) bulkBtn.disabled = true;
 
-    // Configura o estado inicial do painel
-    if (statusEl) statusEl.innerText = 'Enviando...';
+    if (statusEl) statusEl.innerText = 'Conectando...';
+    if (feedbackEl) feedbackEl.innerText = 'Enviando dados para o servidor...';
     if (progressEl) progressEl.value = 0;
-    
-    let atual = 0;
 
-    // Executa o envio progressivo item a item
-    const intervalo = setInterval(() => {
-      atual++;
-      totalProcessado++;
+    try {
+      // Comunica com a API local (porta 3000)
+      const resposta = await fetch('http://localhost:3000/api/denuncias', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ numero, categoria, quantidade })
+      });
 
-      const porcentagem = Math.round((atual / quantidade) * 100);
-      
-      if (progressEl) progressEl.value = porcentagem;
-      if (countEl) countEl.innerText = totalProcessado;
-      if (feedbackEl) {
-        feedbackEl.innerText = `Processando lote: enviando requisição ${atual} de ${quantidade} para ${numero} (${porcentagem}%)...`;
+      const resultado = await resposta.json();
+
+      if (!resposta.ok || !resultado.sucesso) {
+        throw new Error(resultado.mensagem || 'Erro ao processar na API.');
       }
 
-      // Finalização do lote
-      if (atual >= quantidade) {
-        clearInterval(intervalo);
-        
-        if (statusEl) statusEl.innerText = 'Concluído';
-        if (feedbackEl) {
-          feedbackEl.innerText = `✅ Sucesso! Lote de ${quantidade} ocorrência(s) processado para a categoria "${categoria}".`;
+      const links = resultado.links;
+      statusEl.innerText = 'Disparando';
+      let atual = 0;
+
+      // Abre os links sequencialmente com intervalo de segurança
+      const intervalo = setInterval(() => {
+        if (atual < links.length) {
+          const item = links[atual];
+          atual++;
+          totalProcessadoGlobal++;
+
+          const porcentagem = Math.round((atual / links.length) * 100);
+          
+          if (progressEl) progressEl.value = porcentagem;
+          if (countEl) countEl.innerText = totalProcessadoGlobal;
+          if (feedbackEl) {
+            feedbackEl.innerText = `Abrindo link ${atual} de ${links.length} para o WhatsApp...`;
+          }
+
+          // Abre o link oficial do WhatsApp em nova aba
+          window.open(item.url, '_blank');
+
+        } else {
+          clearInterval(intervalo);
+          
+          if (statusEl) statusEl.innerText = 'Concluído';
+          if (feedbackEl) {
+            feedbackEl.innerText = `✅ Sucesso! Lote de ${links.length} disparos gerados para o WhatsApp.`;
+          }
+
+          if (submitBtn) submitBtn.disabled = false;
+          if (bulkBtn) bulkBtn.disabled = false;
         }
+      }, 700); // 700ms de intervalo entre cada aba aberta
 
-        // Restaura a interatividade dos botões
-        if (submitBtn) submitBtn.disabled = false;
-        if (bulkBtn) bulkBtn.disabled = false;
-      }
-    }, 350);
+    } catch (erro) {
+      if (statusEl) statusEl.innerText = 'Erro';
+      if (feedbackEl) feedbackEl.innerText = `❌ Falha: ${erro.message}`;
+      if (submitBtn) submitBtn.disabled = false;
+      if (bulkBtn) bulkBtn.disabled = false;
+    }
   }
 </script>
