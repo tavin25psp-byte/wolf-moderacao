@@ -25,4 +25,74 @@ app.use('/api/denuncias', limiter);
 const filaProcessamento = [];
 
 // Rota de verificação de status da API (Health Check)
-app.get('/api/health', (req, res) =>
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'Online', mensagem: 'API do Wolf Moderação operando normalmente.' });
+});
+
+// Rota POST principal para recepção de lotes
+app.post('/api/denuncias', (req, res) => {
+  try {
+    const { numero, categoria, quantidade } = req.body;
+
+    if (!numero || !categoria || !quantidade) {
+      return res.status(400).json({
+        sucesso: false,
+        mensagem: 'Parâmetros obrigatórios ausentes: numero, categoria e quantidade.'
+      });
+    }
+
+    const qtdeNumerica = parseInt(quantidade, 10);
+    if (isNaN(qtdeNumerica) || qtdeNumerica < 1 || qtdeNumerica > 20) {
+      return res.status(400).json({
+        sucesso: false,
+        mensagem: 'A quantidade deve ser um número inteiro entre 1 e 20.'
+      });
+    }
+
+    const jobId = 'job_' + Date.now();
+    const novaTarefa = {
+      id: jobId,
+      numero: String(numero).trim(),
+      categoria,
+      quantidade: qtdeNumerica,
+      status: 'PROCESSANDO',
+      criadoEm: new Date()
+    };
+
+    filaProcessamento.push(novaTarefa);
+    processarLoteEmBackground(novaTarefa);
+
+    return res.status(202).json({
+      sucesso: true,
+      mensagem: 'Lote aceito para processamento.',
+      jobId: jobId,
+      status: 'PROCESSANDO'
+    });
+
+  } catch (erro) {
+    console.error('Erro interno no servidor:', erro);
+    return res.status(500).json({
+      sucesso: false,
+      mensagem: 'Erro interno ao processar a requisição.'
+    });
+  }
+});
+
+function processarLoteEmBackground(tarefa) {
+  let concluidos = 0;
+  const intervalo = setInterval(() => {
+    concluidos++;
+    console.log(`[Job ${tarefa.id}] Processando item ${concluidos} de ${tarefa.quantidade} para ${tarefa.numero}...`);
+
+    if (concluidos >= tarefa.quantidade) {
+      clearInterval(intervalo);
+      tarefa.status = 'CONCLUIDO';
+      console.log(`[Job ${tarefa.id}] Lote finalizado com sucesso.`);
+    }
+  }, 500);
+}
+
+// Inicialização do servidor
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
