@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
+const path = require('path');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -8,24 +9,12 @@ const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(cors());
 
-// 👇 ADICIONE ESTA ROTA PARA EVITAR O ERRO "Cannot GET /"
-app.get('/', (req, res) => {
-  res.json({ 
-    status: 'Online', 
-    mensagem: 'API do Wolf Moderação rodando com sucesso!' 
-  });
-});
+// 👇 ADICIONE ISSO: Faz o Express servir os arquivos da pasta 'public' (HTML, CSS)
+app.use(express.static(path.join(__dirname, 'public')));
 
-// O restante das suas rotas continua aqui...
-const limiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 30,
-  message: { sucesso: false, mensagem: 'Muitas requisições. Tente novamente mais tarde.' }
-});
-app.use('/api/denuncias', limiter);
-
+// O restante das suas rotas de API continua aqui...
 app.post('/api/denuncias', (req, res) => {
-  // ... sua lógica de denúncias ...
+  // sua lógica de denúncias...
 });
 
 app.listen(PORT, () => {
