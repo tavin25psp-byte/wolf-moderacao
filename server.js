@@ -1,152 +1,66 @@
-const express = require("express");
-const path = require("path");
-const fs = require("fs");
+const express = require('express');
+const cors = require('cors');
+const rateLimit = require('express-rate-limit');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-const DATA_DIR = process.env.DATA_DIR || __dirname;
-const DATA_FILE = path.join(DATA_DIR, "reports.json");
+app.use(express.json());
+app.use(cors());
 
-app.use(express.json({ limit: "1mb" }));
-app.use(express.static(path.join(__dirname, "public")));
-
-function readReports() {
-  try {
-    return JSON.parse(fs.readFileSync(DATA_FILE, "utf8"));
-  } catch {
-    return [];
-  }
-}
-
-function writeReports(reports) {
-  const tempFile = DATA_FILE + ".tmp";
-
-  fs.writeFileSync(
-    tempFile,
-    JSON.stringify(reports, null, 2),
-    "utf8"
-  );
-
-  fs.renameSync(tempFile, DATA_FILE);
-}
-
-// Consultar histórico
-app.get("/api/reports", (req, res) => {
-  res.json(readReports());
+// Proteção contra abuso (Rate Limiter)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: { sucesso: false, mensagem: 'Muitas requisições. Tente novamente mais tarde.' }
 });
+app.use('/api/denuncias', limiter);
 
-// Registrar ocorrência individual
-app.post("/api/reports", (req, res) => {
-  const { number, reason, notes } = req.body || {};
-
-  if (!number || !reason) {
-    return res.status(400).json({
-      error: "Número e categoria são obrigatórios."
-    });
-  }
-
-  const normalizedNumber = String(number).trim();
-
-  if (
-    normalizedNumber.length < 7 ||
-    normalizedNumber.length > 30
-  ) {
-    return res.status(400).json({
-      error: "Informe um número válido."
-    });
-  }
-
-  const reports = readReports();
-
-  const report = {
-    id: "WOLF-" + Date.now().toString(36).toUpperCase(),
-    number: normalizedNumber,
-    reason: String(reason).slice(0, 80),
-    notes: String(notes || "").slice(0, 1000),
-    status: "Registrado",
-    createdAt: new Date().toISOString()
-  };
-
-  reports.unshift(report);
-
+// Rota POST para processar e gerar os links de direcionamento em lote
+app.post('/api/denuncias', (req, res) => {
   try {
-    writeReports(reports);
-  } catch (error) {
-    return res.status(500).json({
-      error: "Não foi possível salvar o registro."
+    const { numero, categoria, quantidade } = req.body;
+
+    if (!numero || !categoria || !quantidade) {
+      return res.status(400).json({ 
+        sucesso: false, 
+        mensagem: 'Parâmetros obrigatórios ausentes: numero, categoria e quantidade.' 
+      });
+    }
+
+    const qtdeNumerica = parseInt(quantidade, 10);
+    if (isNaN(qtdeNumerica) || qtdeNumerica < 1 || qtdeNumerica > 20) {
+      return res.status(400).json({ 
+        sucesso: false, 
+        mensagem: 'A quantidade deve ser um número inteiro entre 1 e 20.' 
+      });
+    }
+
+    // Limpa o número para conter apenas dígitos (essencial para o wa.me)
+    const numeroLimpo = numero.replace(/\D/g, '');
+    const mensagemBase = encodeURIComponent(`Denúncia por violação de diretrizes - Categoria: ${categoria}`);
+    
+    const linksGerados = [];
+    for (let i = 1; i <= qtdeNumerica; i++) {
+      linksGerados.push({
+        id: i,
+        url: `https://wa.me/${numeroLimpo}?text=${mensagemBase}%20(Protocolo%20${i})`
+      });
+    }
+
+    return res.status(200).json({
+      sucesso: true,
+      mensagem: 'Lote processado com sucesso.',
+      total: linksGerados.length,
+      links: linksGerados
     });
+
+  } catch (erro) {
+    console.error('Erro interno:', erro);
+    return res.status(500).json({ sucesso: false, mensagem: 'Erro interno no servidor.' });
   }
-
-  res.status(201).json(report);
-});
-
-// NOVO: Processamento de denúncias em massa
-// Simulação local para projeto escolar
-app.post("/api/reports/bulk", (req, res) => {
-  const { number, reason, quantity } = req.body || {};
-
-  if (!number || !reason || !quantity) {
-    return res.status(400).json({
-      error: "Preencha todos os campos."
-    });
-  }
-
-  const total = Number(quantity);
-
-  if (!Number.isInteger(total) || total < 1 || total > 100) {
-    return res.status(400).json({
-      error: "A quantidade deve ser de 1 a 100."
-    });
-  }
-
-  const reports = readReports();
-
-  const batchId =
-    "WOLF-BATCH-" + Date.now().toString(36).toUpperCase();
-
-  const createdReports = [];
-
-  for (let i = 0; i < total; i++) {
-    const report = {
-      id: batchId + "-" + (i + 1),
-      number: String(number).trim(),
-      reason: String(reason).slice(0, 80),
-      notes: "Registro de demonstração escolar",
-      status: "Simulado",
-      batchId: batchId,
-      createdAt: new Date().toISOString()
-    };
-
-    createdReports.push(report);
-  }
-
-  reports.unshift(...createdReports);
-
-  try {
-    writeReports(reports);
-  } catch (error) {
-    return res.status(500).json({
-      error: "Não foi possível salvar os registros."
-    });
-  }
-
-  res.status(201).json({
-    success: true,
-    batchId: batchId,
-    total: createdReports.length,
-    status: "Simulação concluída",
-    reports: createdReports
-  });
-});
-
-// Status do servidor
-app.get("/api/health", (req, res) => {
-  res.json({
-    status: "online"
-  });
 });
 
 app.listen(PORT, () => {
-  console.log("WOLF Moderação rodando na porta " + PORT);
+  console.log(`Servidor rodando na porta ${PORT}`);
 });
