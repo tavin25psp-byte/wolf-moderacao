@@ -22,6 +22,7 @@ body {
   ), var(--bg);
 
   color: var(--text);
+
   font: 15px Inter, system-ui, -apple-system,
     Segoe UI, Arial, sans-serif;
 }
@@ -42,12 +43,21 @@ body {
 .mark {
   display: grid;
   place-items: center;
+
   width: 48px;
   height: 48px;
+
   border-radius: 15px;
-  background: linear-gradient(145deg, #ff5360, #a90f23);
+
+  background: linear-gradient(
+    145deg,
+    #ff5360,
+    #a90f23
+  );
+
   font-weight: 950;
   font-size: 24px;
+
   box-shadow: 0 8px 30px #f33b4c30;
 }
 
@@ -75,11 +85,15 @@ body {
 
 .live i {
   display: inline-block;
+
   width: 7px;
   height: 7px;
+
   border-radius: 50%;
   background: var(--green);
+
   margin-right: 6px;
+
   box-shadow: 0 0 10px #8de0ae80;
 }
 
@@ -88,21 +102,33 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+
   padding: 32px;
+
   border: 1px solid #3a2630;
   border-radius: 22px;
-  background: linear-gradient(120deg, #211119, #12141c 72%);
+
+  background: linear-gradient(
+    120deg,
+    #211119,
+    #12141c 72%
+  );
+
   margin-bottom: 18px;
 }
 
 .pill {
   display: inline-block;
+
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 1.2px;
+
   color: #ff9aa4;
+
   border: 1px solid #68303c;
   background: #32151e;
+
   padding: 7px 10px;
   border-radius: 99px;
 }
@@ -110,6 +136,7 @@ body {
 .hero h2 {
   font-size: clamp(26px, 4vw, 42px);
   line-height: 1.08;
+
   margin: 18px 0 12px;
   letter-spacing: -1px;
 }
@@ -121,14 +148,37 @@ body {
 
 .hero p {
   max-width: 650px;
+
   color: var(--muted);
   line-height: 1.65;
+
   margin: 0;
 }
 
 .shield {
   font-size: 78px;
-  filter: drop-shadow(0 12px 30px #f33b4c25);
+
+  filter: drop-shadow(
+    0 12px 30px #f33b4c25
+  );
+}
+
+.notice {
+  padding: 13px 16px;
+  margin: 0 0 18px;
+
+  border: 1px solid #49303a;
+  border-radius: 12px;
+
+  background: #1b1219;
+
+  color: #d8cbd0;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.notice strong {
+  color: #ff9aa4;
 }
 
 .grid {
@@ -139,9 +189,16 @@ body {
 
 .panel {
   padding: 24px;
+
   border: 1px solid var(--line);
   border-radius: 19px;
-  background: linear-gradient(160deg, #161922, #101219);
+
+  background: linear-gradient(
+    160deg,
+    #161922,
+    #101219
+  );
+
   min-width: 0;
 }
 
@@ -149,6 +206,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   margin-bottom: 22px;
 }
 
@@ -160,16 +218,21 @@ body {
 .step {
   font-size: 11px;
   color: #747b8b;
+
   border: 1px solid #343946;
   border-radius: 9px;
+
   padding: 7px 9px;
 }
 
 label {
   display: block;
+
   margin: 16px 0 8px;
+
   font-size: 12px;
   font-weight: 750;
+
   color: #dce0e8;
 }
 
@@ -177,11 +240,15 @@ input,
 select,
 textarea {
   width: 100%;
+
   border: 1px solid #333948;
   background: #0b0e14;
+
   color: var(--text);
+
   border-radius: 11px;
   padding: 13px 14px;
+
   font: inherit;
   outline: none;
 }
@@ -190,6 +257,7 @@ input:focus,
 select:focus,
 textarea:focus {
   border-color: var(--red);
+
   box-shadow: 0 0 0 3px #f33b4c18;
 }
 
@@ -200,19 +268,30 @@ textarea {
 .primary,
 .secondary {
   width: 100%;
+
   border: 0;
   border-radius: 11px;
+
   padding: 14px 16px;
+
   font: inherit;
   font-size: 13px;
   font-weight: 850;
+
   cursor: pointer;
 }
 
 .primary {
   margin-top: 18px;
+
   color: white;
-  background: linear-gradient(110deg, var(--red), var(--red2));
+
+  background: linear-gradient(
+    110deg,
+    var(--red),
+    var(--red2)
+  );
+
   box-shadow: 0 8px 22px #f33b4c20;
 }
 
@@ -222,24 +301,36 @@ textarea {
   line-height: 15px;
 }
 
+.primary:disabled {
+  opacity: .65;
+  cursor: wait;
+}
+
 .secondary {
   margin-top: 15px;
+
   color: #e1e4eb;
+
   background: #222631;
+
   border: 1px solid #333948;
 }
 
 .hint {
   font-size: 11px;
   line-height: 1.5;
+
   color: var(--muted);
+
   margin: 12px 0 0;
 }
 
 .feedback {
   font-size: 12px;
   margin-top: 10px;
+
   color: var(--green);
+  line-height: 1.5;
 }
 
 .feedback.error {
@@ -249,13 +340,16 @@ textarea {
 .stats {
   display: flex;
   gap: 12px;
+
   margin-bottom: 14px;
 }
 
 .stats div {
   flex: 1;
+
   border: 1px solid var(--line);
   background: #0d1016;
+
   border-radius: 12px;
   padding: 13px;
 }
@@ -277,14 +371,19 @@ textarea {
 
 .empty {
   padding: 30px 10px;
+
   text-align: center;
+
   color: var(--muted);
   font-size: 13px;
 }
 
 .record {
   padding: 13px 0;
+
   border-bottom: 1px solid var(--line);
+
+  overflow-wrap: anywhere;
 }
 
 .record:last-child {
@@ -295,32 +394,60 @@ textarea {
   display: flex;
   justify-content: space-between;
   gap: 10px;
+
   font-size: 12px;
   font-weight: 800;
 }
 
 .record small {
   display: block;
+
   color: var(--muted);
   font-size: 11px;
+
   margin-top: 6px;
   line-height: 1.5;
+
+  white-space: pre-wrap;
 }
 
 .badge {
   color: #f2c46d;
   background: #352b17;
+
   border-radius: 99px;
   padding: 4px 7px;
+
   font-size: 9px;
   white-space: nowrap;
+
+  height: fit-content;
+}
+
+.report-link {
+  display: block;
+
+  margin-top: 13px;
+
+  text-align: center;
+
+  color: #ff9aa4;
+  font-size: 12px;
+
+  text-decoration: none;
+}
+
+.report-link:hover {
+  text-decoration: underline;
 }
 
 footer {
   text-align: center;
+
   color: #737b8c;
   font-size: 10px;
   line-height: 1.7;
+
   margin-top: 25px;
 }
 
