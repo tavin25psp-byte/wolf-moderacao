@@ -1,45 +1,68 @@
-const form = document.querySelector("#report-form");
-const feedback = document.querySelector("#feedback");
-const records = document.querySelector("#records");
-const count = document.querySelector("#count");
+const form = document.getElementById("report-form");
+const feedback = document.getElementById("feedback");
+const records = document.getElementById("records");
+const count = document.getElementById("count");
+const refresh = document.getElementById("refresh");
 
-const submitButton = form.querySelector(
-  'button[type="submit"]'
-);
+async function api(url, options = {}) {
+  const response = await fetch(url, {
+    headers: {
+      "Content-Type": "application/json"
+    },
+    ...options
+  });
 
-function escapeHtml(value) {
-  return String(value).replace(/[&<>"']/g, ch => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  }[ch]));
+  const data = await response.json();
+
+  if (!response.ok) {
+    throw new Error(data.error || "Erro na solicitação.");
+  }
+
+  return data;
 }
 
-function prettyDate(value) {
-  const date = new Date(value);
+// Registrar ocorrência individual
+form.addEventListener("submit", async (event) => {
+  event.preventDefault();
 
-  return Number.isNaN(date.getTime())
-    ? ""
-    : date.toLocaleString("pt-BR");
-}
+  const number = document.getElementById("number").value.trim();
+  const reason = document.getElementById("reason").value;
+  const notes = document.getElementById("notes").value.trim();
 
-async function loadRecords() {
+  feedback.textContent = "Registrando ocorrência...";
+  feedback.className = "feedback";
+
   try {
-    const response = await fetch("/api/reports", {
-      cache: "no-store"
+    await api("/api/reports", {
+      method: "POST",
+      body: JSON.stringify({
+        number,
+        reason,
+        notes
+      })
     });
 
-    if (!response.ok) {
-      throw new Error("Falha ao carregar");
-    }
+    feedback.textContent = "Ocorrência registrada com sucesso!";
+    feedback.className = "feedback success";
 
-    const data = await response.json();
+    form.reset();
 
-    count.textContent = data.length;
+    await loadReports();
 
-    if (!data.length) {
+  } catch (error) {
+    feedback.textContent = error.message;
+    feedback.className = "feedback error";
+  }
+});
+
+// Carregar histórico
+async function loadReports() {
+  try {
+    const reports = await api("/api/reports");
+
+    count.textContent = reports.length;
+
+    if (!reports.length) {
       records.innerHTML = `
         <div class="empty">
           Nenhum registro por enquanto.
@@ -49,101 +72,44 @@ async function loadRecords() {
       return;
     }
 
-    records.innerHTML = data.map(item => `
+    records.innerHTML = reports.map((report) => `
       <article class="record">
-
         <div class="record-top">
-          <span>
-            ${escapeHtml(item.reason)}
-            ·
-            ${escapeHtml(item.id)}
-          </span>
-
-          <span class="badge">
-            ${escapeHtml(item.status)}
-          </span>
+          <strong>${escapeHTML(report.id)}</strong>
+          <span>${escapeHTML(report.status)}</span>
         </div>
 
+        <p>${escapeHTML(report.number)}</p>
+        <p>${escapeHTML(report.reason)}</p>
+
         <small>
-          Número: ${escapeHtml(item.number)}<br>
-
-          ${escapeHtml(prettyDate(item.createdAt))}
-
-          ${
-            item.notes
-              ? "<br>" + escapeHtml(item.notes)
-              : ""
-          }
+          ${new Date(report.createdAt).toLocaleString("pt-BR")}
         </small>
-
       </article>
     `).join("");
 
-  } catch {
+  } catch (error) {
     records.innerHTML = `
       <div class="empty">
-        Não foi possível carregar.
-        Verifique se o servidor está ativo.
+        Não foi possível carregar os registros.
       </div>
     `;
   }
 }
 
-form.addEventListener("submit", async event => {
-  event.preventDefault();
+// Escapar conteúdo para evitar HTML injetado
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  })[char]);
+}
 
-  feedback.className = "feedback";
-  feedback.textContent = "Registrando…";
+// Atualizar histórico
+refresh.addEventListener("click", loadReports);
 
-  submitButton.disabled = true;
-
-  const payload = {
-    number: document.querySelector("#number").value.trim(),
-
-    reason: document.querySelector("#reason").value,
-
-    notes: document.querySelector("#notes").value.trim()
-  };
-
-  try {
-    const response = await fetch("/api/reports", {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify(payload)
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(
-        result.error || "Não foi possível registrar."
-      );
-    }
-
-    feedback.textContent =
-      "Registro salvo no servidor. Nenhuma conta foi denunciada ou bloqueada.";
-
-    form.reset();
-
-    await loadRecords();
-
-  } catch (error) {
-    feedback.className = "feedback error";
-
-    feedback.textContent =
-      error.message || "Erro ao registrar ocorrência.";
-
-  } finally {
-    submitButton.disabled = false;
-  }
-});
-
-document
-  .querySelector("#refresh")
-  .addEventListener("click", loadRecords);
-
-loadRecords();
+// Inicialização
+loadReports();
