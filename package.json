@@ -1,12 +1,14 @@
 {
   "name": "wolf-moderacao",
   "version": "1.0.0",
-  "description": "Painel de moderação WOLF",
+  "description": "Painel de automação de denúncias",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.21.2"
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.1.5"
   }
 }
