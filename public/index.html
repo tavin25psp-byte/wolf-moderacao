@@ -1,315 +1,76 @@
-<!doctype html>
-<html lang="pt-BR">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#0b0c11">
-
-  <title>WOLF • Moderação</title>
-
-  <link rel="stylesheet" href="/style.css">
-</head>
-
-<body>
-<main class="shell">
-
-  <header class="header">
-    <div class="mark">W</div>
-
-    <div>
-      <p class="overline">WOLF • CENTRAL DE SEGURANÇA</p>
-      <h1>Painel de Moderação</h1>
-    </div>
-
-    <span class="live">
-      <i></i> SISTEMA ONLINE
-    </span>
-  </header>
-
-  <section class="hero">
-    <div>
-      <span class="pill">CENTRAL DE MODERAÇÃO</span>
-
-      <h2>
-        Organize denúncias<br>
-        <em>de forma responsável.</em>
-      </h2>
-
-      <p>
-        Registre ocorrências e acompanhe os casos
-        documentados no painel.
-      </p>
-    </div>
-
-    <div class="shield">🛡️</div>
-  </section>
-
-  <section class="notice">
-    <strong>Importante:</strong>
-    este sistema registra ocorrências para fins de
-    demonstração. Ele não envia denúncias ao WhatsApp
-    nem suspende contas.
-  </section>
-
-  <section class="grid">
-
-    <!-- REGISTRO INDIVIDUAL -->
-
-    <form class="panel" id="report-form">
-
-      <div class="panel-heading">
-        <div>
-          <span class="overline">NOVA OCORRÊNCIA</span>
-          <h3>Registrar caso</h3>
-        </div>
-
-        <span class="step">01</span>
-      </div>
-
-      <label for="number">
-        Número de referência
-      </label>
-
-      <input
-        id="number"
-        name="number"
-        type="tel"
-        placeholder="+55 21 99999-9999"
-        maxlength="30"
-        required
-      >
-
-      <label for="reason">Categoria</label>
-
-      <select id="reason" name="reason" required>
-        <option value="">Selecione uma categoria</option>
-        <option>Spam ou golpe</option>
-        <option>Assédio ou ameaça</option>
-        <option>Impersonação</option>
-        <option>Outro abuso</option>
-      </select>
-
-      <label for="notes">
-        Descrição / evidência
-      </label>
-
-      <textarea
-        id="notes"
-        name="notes"
-        rows="4"
-        maxlength="1000"
-        placeholder="Descreva o ocorrido..."
-      ></textarea>
-
-      <button class="primary" type="submit">
-        Registrar ocorrência →
-      </button>
-
-      <div
-        class="feedback"
-        id="feedback"
-        role="status"
-        aria-live="polite"
-      ></div>
-
-    </form>
-
-    <!-- CENTRAL DE PROCESSAMENTO -->
-
-    <section class="panel">
-
-      <div class="panel-heading">
-        <div>
-          <span class="overline">PROCESSAMENTO</span>
-          <h3>Central de demonstração</h3>
-        </div>
-
-        <span class="step">02</span>
-      </div>
-
-      <form id="bulk-form">
-
-        <label for="bulk-number">
-          Número de referência
-        </label>
-
-        <input
-          id="bulk-number"
-          type="tel"
-          placeholder="+55 21 99999-9999"
-          maxlength="30"
-          required
-        >
-
-        <label for="bulk-reason">
-          Categoria
-        </label>
-
-        <select id="bulk-reason" required>
-          <option value="">Selecione uma categoria</option>
-          <option>Spam ou golpe</option>
-          <option>Assédio ou ameaça</option>
-          <option>Impersonação</option>
-          <option>Outro abuso</option>
-        </select>
-
-        <label for="bulk-quantity">
-          Quantidade de registros simulados
-        </label>
-
-        <input
-          id="bulk-quantity"
-          type="number"
-          min="1"
-          max="20"
-          value="5"
-          required
-        >
-
-        <button class="primary" type="submit">
-          Iniciar demonstração →
-        </button>
-
-      </form>
-
-      <div id="bulk-feedback" class="feedback"></div>
-
-      <div class="stats">
-        <div>
-          <strong id="bulk-count">0</strong>
-          <span>Registros simulados</span>
-        </div>
-
-        <div>
-          <strong id="bulk-status">Aguardando</strong>
-          <span>Status</span>
-        </div>
-      </div>
-
-      <progress
-        id="bulk-progress"
-        value="0"
-        max="100"
-        style="width:100%"
-      ></progress>
-
-    </section>
-
-  </section>
-
-  <!-- HISTÓRICO -->
-
-  <section class="panel history">
-
-    <div class="panel-heading">
-      <div>
-        <span class="overline">ACOMPANHAMENTO</span>
-        <h3>Registros recentes</h3>
-      </div>
-
-      <span class="step">03</span>
-    </div>
-
-    <div class="stats">
-      <div>
-        <strong id="count">0</strong>
-        <span>Ocorrências registradas</span>
-      </div>
-    </div>
-
-    <div id="records" class="records">
-      <div class="empty">
-        Nenhum registro por enquanto.
-      </div>
-    </div>
-
-    <button class="secondary" id="refresh" type="button">
-      Atualizar lista
-    </button>
-
-  </section>
-
-  <footer>
-    WOLF • Painel independente de registro.
-    <br>
-    Não afiliado ao WhatsApp.
-  </footer>
-
-</main>
-
-<script src="/app.js"></script>
-
 <script>
-const bulkForm = document.getElementById("bulk-form");
+  let totalProcessado = 0;
 
-bulkForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
+  // 1. Processamento via Formulário (Submit)
+  document.getElementById('bulk-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    iniciarEnvioMassa();
+  });
 
-  const number =
-    document.getElementById("bulk-number").value.trim();
-
-  const reason =
-    document.getElementById("bulk-reason").value;
-
-  const quantity =
-    Number(document.getElementById("bulk-quantity").value);
-
-  const feedback =
-    document.getElementById("bulk-feedback");
-
-  const status =
-    document.getElementById("bulk-status");
-
-  const progress =
-    document.getElementById("bulk-progress");
-
-  const counter =
-    document.getElementById("bulk-count");
-
-  feedback.textContent = "Processando demonstração...";
-  status.textContent = "Processando";
-  progress.value = 0;
-
-  try {
-    const response = await fetch("/api/reports/bulk", {
-      method: "POST",
-
-      headers: {
-        "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify({
-        number,
-        reason,
-        quantity
-      })
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      throw new Error(result.error);
-    }
-
-    counter.textContent = result.total;
-    status.textContent = "Concluído";
-    progress.value = 100;
-
-    feedback.textContent =
-      "Demonstração concluída. Nenhuma denúncia foi enviada ao WhatsApp.";
-
-    if (typeof loadReports === "function") {
-      await loadReports();
-    }
-
-  } catch (error) {
-    status.textContent = "Erro";
-
-    feedback.textContent =
-      error.message || "Não foi possível processar.";
+  // 2. Processamento disparado pelo botão de Denúncias em Massa
+  function ativarDenuncias() {
+    iniciarEnvioMassa();
   }
-});
-</script>
 
-</body>
-</html>
+  // Função central de disparo em lote
+  function iniciarEnvioMassa() {
+    const numeroInput = document.getElementById('bulk-number');
+    const categoriaSelect = document.getElementById('bulk-reason');
+    const quantidadeInput = document.getElementById('bulk-quantity');
+    
+    const feedbackEl = document.getElementById('bulk-feedback');
+    const countEl = document.getElementById('bulk-count');
+    const statusEl = document.getElementById('bulk-status');
+    const progressEl = document.getElementById('bulk-progress');
+    const submitBtn = document.querySelector('.primary');
+    const bulkBtn = document.querySelector('.btn-denuncias');
+
+    // Validação dos campos obrigatórios
+    if (!numeroInput.value || !categoriaSelect.value) {
+      alert('Por favor, informe o número de referência e selecione uma categoria.');
+      numeroInput.focus();
+      return;
+    }
+
+    const numero = numeroInput.value;
+    const categoria = categoriaSelect.value;
+    const quantidade = parseInt(quantidadeInput.value, 10) || 5;
+
+    // Desativa os botões para evitar múltiplos cliques durante o processo
+    submitBtn.disabled = true;
+    bulkBtn.disabled = true;
+
+    // Estado inicial do progresso
+    statusEl.innerText = 'Enviando...';
+    progressEl.value = 0;
+    
+    let atual = 0;
+
+    // Simula o envio de cada registro com intervalo de tempo (ex: 350ms por item)
+    const intervalo = setInterval(() => {
+      atual++;
+      totalProcessado++;
+
+      // Calcula a porcentagem para a barra <progress>
+      const porcentagem = Math.round((atual / quantidade) * 100);
+      progressEl.value = porcentagem;
+
+      // Atualiza os textos de feedback e contador na tela
+      countEl.innerText = totalProcessado;
+      feedbackEl.innerText = `Processando lote: enviando requisição ${atual} de ${quantidade} para ${numero} (${porcentagem}%)...`;
+
+      // Condição de término do lote
+      if (atual >= quantidade) {
+        clearInterval(intervalo);
+        
+        // Atualiza status final
+        statusEl.innerText = 'Concluído';
+        feedbackEl.innerText = `✅ Sucesso! Lote de ${quantidade} denúncias processado para a categoria "${categoria}".`;
+
+        // Reativa os botões
+        submitBtn.disabled = false;
+        bulkBtn.disabled = false;
+      }
+    }, 350);
+  }
+</script>
