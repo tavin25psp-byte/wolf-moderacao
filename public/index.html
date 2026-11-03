@@ -1,120 +1,228 @@
-<script>
-  let totalProcessadoGlobal = 0;
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wolf Moderação - Painel de Controle</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-  document.addEventListener('DOMContentLoaded', function() {
-    const form = document.getElementById('bulk-form');
-    if (form) {
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        executarEnvioWhatsApp();
-      });
+  <div class="shell">
+    <!-- Header -->
+    <header class="header">
+      <div class="mark">W</div>
+      <div>
+        <div class="overline">SISTEMA DE MODERAÇÃO</div>
+        <h1>Wolf Channel</h1>
+      </div>
+      <div class="live"><i></i> SISTEMA ONLINE</div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div>
+        <span class="pill">AUTOMAÇÃO DE SEGURANÇA</span>
+        <h2>Central de <em>Denúncias em Massa</em></h2>
+        <p>Gerencie ocorrências e realize o direcionamento de denúncias em lote de forma automatizada e segura.</p>
+      </div>
+      <div class="shield">🛡️</div>
+    </section>
+
+    <div class="notice">
+      ⚠️ <strong>Aviso de Uso:</strong> Certifique-se de autorizar a abertura de pop-ups no seu navegador para permitir que as abas de direcionamento do WhatsApp sejam abertas em lote.
+    </div>
+
+    <!-- Grid Principal -->
+    <div class="grid">
+      <!-- Painel de Envio -->
+      <main class="panel">
+        <div class="panel-heading">
+          <h3>Nova Denúncia</h3>
+          <span class="step">01</span>
+        </div>
+
+        <form id="bulk-form">
+          <label for="bulk-number">Número / Referência</label>
+          <input type="text" id="bulk-number" placeholder="Ex: 5511999999999" required>
+
+          <label for="bulk-reason">Categoria de Violação</label>
+          <select id="bulk-reason" required>
+            <option value="">Selecione uma categoria...</option>
+            <option value="Spam / Abuso">Spam / Abuso</option>
+            <option value="Conteúdo Impróprio">Conteúdo Impróprio</option>
+            <option value="Violação de Diretrizes">Violação de Diretrizes</option>
+            <option value="Atividade Suspeita">Atividade Suspeita</option>
+          </select>
+
+          <label for="bulk-quantity">Quantidade de Disparos em Lote</label>
+          <input type="number" id="bulk-quantity" value="5" min="1" max="20" required>
+
+          <button type="submit" class="primary">
+            Disparar Denúncias <span>➔</span>
+          </button>
+          <button type="button" class="secondary btn-denuncias" onclick="ativarDenuncias()">
+            Executar em Massa
+          </button>
+        </form>
+
+        <div class="feedback" id="bulk-feedback"></div>
+      </main>
+
+      <!-- Painel de Status / Estatísticas -->
+      <aside class="panel">
+        <div class="panel-heading">
+          <h3>Status da Operação</h3>
+          <span class="step">02</span>
+        </div>
+
+        <div class="stats">
+          <div>
+            <strong id="bulk-count">0</strong>
+            <span>Processados</span>
+          </div>
+          <div>
+            <strong id="bulk-status">Aguardando</strong>
+            <span>Estado Atual</span>
+          </div>
+        </div>
+
+        <label for="bulk-progress">Progresso do Lote</label>
+        <progress id="bulk-progress" value="0" max="100" style="width: 100%; height: 12px;"></progress>
+
+        <div class="records" style="margin-top: 20px;">
+          <div class="record">
+            <div class="record-top">
+              <strong>LOG DE SISTEMA</strong>
+              <span>ATIVO</span>
+            </div>
+            <p>Servidor conectado: <code>https://wolf-moderacao.onrender.com</code></p>
+            <small>Pronto para iniciar requisições.</small>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <footer>
+      Wolf Moderação &copy; 2026 - Todos os direitos reservados.
+    </footer>
+  </div>
+
+  <!-- SCRIPT DE INTEGRAÇÃO COM A API DO RENDER -->
+  <script>
+    let totalProcessadoGlobal = 0;
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const form = document.getElementById('bulk-form');
+      if (form) {
+        form.addEventListener('submit', function(e) {
+          e.preventDefault();
+          executarEnvioWhatsApp();
+        });
+      }
+    });
+
+    function ativarDenuncias() {
+      executarEnvioWhatsApp();
     }
-  });
 
-  function ativarDenuncias() {
-    executarEnvioWhatsApp();
-  }
+    async function executarEnvioWhatsApp() {
+      const numeroInput = document.getElementById('bulk-number');
+      const categoriaSelect = document.getElementById('bulk-reason');
+      const quantidadeInput = document.getElementById('bulk-quantity');
+      
+      const feedbackEl = document.getElementById('bulk-feedback');
+      const countEl = document.getElementById('bulk-count');
+      const statusEl = document.getElementById('bulk-status');
+      const progressEl = document.getElementById('bulk-progress');
+      const submitBtn = document.querySelector('.primary');
+      const bulkBtn = document.querySelector('.btn-denuncias');
 
-  async function executarEnvioWhatsApp() {
-    const numeroInput = document.getElementById('bulk-number');
-    const categoriaSelect = document.getElementById('bulk-reason');
-    const quantidadeInput = document.getElementById('bulk-quantity');
-    
-    const feedbackEl = document.getElementById('bulk-feedback');
-    const countEl = document.getElementById('bulk-count');
-    const statusEl = document.getElementById('bulk-status');
-    const progressEl = document.getElementById('bulk-progress');
-    const submitBtn = document.querySelector('.primary');
-    const bulkBtn = document.querySelector('.btn-denuncias');
-
-    if (!numeroInput || !numeroInput.value.trim()) {
-      alert('Por favor, informe o número de referência.');
-      if (numeroInput) numeroInput.focus();
-      return;
-    }
-
-    if (!categoriaSelect || !categoriaSelect.value) {
-      alert('Por favor, selecione uma categoria.');
-      if (categoriaSelect) categoriaSelect.focus();
-      return;
-    }
-
-    const numero = numeroInput.value.trim();
-    const categoria = categoriaSelect.value;
-    const quantidade = parseInt(quantidadeInput.value, 10) || 5;
-
-    if (submitBtn) submitBtn.disabled = true;
-    if (bulkBtn) bulkBtn.disabled = true;
-
-    if (statusEl) statusEl.innerText = 'Enviando...';
-    if (feedbackEl) {
-      feedbackEl.className = 'feedback';
-      feedbackEl.innerText = 'Transmitindo lote para o servidor...';
-    }
-    if (progressEl) progressEl.value = 0;
-
-    try {
-      // Envia os dados para a API no Render
-      const resposta = await fetch('https://wolf-moderacao.onrender.com/api/denuncias', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ numero, categoria, quantidade })
-      });
-
-      const resultado = await resposta.json();
-
-      if (!resposta.ok || !resultado.sucesso) {
-        throw new Error(resultado.mensagem || 'Erro ao processar na API.');
+      if (!numeroInput || !numeroInput.value.trim()) {
+        alert('Por favor, informe o número de referência.');
+        if (numeroInput) numeroInput.focus();
+        return;
       }
 
-      if (statusEl) statusEl.innerText = 'Disparando';
-      let atual = 0;
+      if (!categoriaSelect || !categoriaSelect.value) {
+        alert('Por favor, selecione uma categoria.');
+        if (categoriaSelect) categoriaSelect.focus();
+        return;
+      }
 
-      // Como o servidor aceitou o Job, simulamos a abertura dos links no cliente 
-      // baseada na quantidade solicitada, garantindo a abertura dos chats do WhatsApp.
-      const intervalo = setInterval(() => {
-        if (atual < quantidade) {
-          atual++;
-          totalProcessadoGlobal++;
+      const numero = numeroInput.value.trim();
+      const categoria = categoriaSelect.value;
+      const quantidade = parseInt(quantidadeInput.value, 10) || 5;
 
-          const porcentagem = Math.round((atual / quantidade) * 100);
-          
-          if (progressEl) progressEl.value = porcentagem;
-          if (countEl) countEl.innerText = totalProcessadoGlobal;
-          if (feedbackEl) {
-            feedbackEl.className = 'feedback success';
-            feedbackEl.innerText = `Abrindo aba ${atual} de ${quantidade} para o WhatsApp...`;
-          }
+      if (submitBtn) submitBtn.disabled = true;
+      if (bulkBtn) bulkBtn.disabled = true;
 
-          // Formata o link oficial do WhatsApp click-to-chat
-          const textoMsg = encodeURIComponent(`Denúncia por violação: ${categoria}`);
-          const urlWhatsApp = `https://wa.me/${numero}?text=${textoMsg}`;
-          
-          // Abre a aba do WhatsApp
-          window.open(urlWhatsApp, '_blank');
-
-        } else {
-          clearInterval(intervalo);
-          
-          if (statusEl) statusEl.innerText = 'Concluído';
-          if (feedbackEl) {
-            feedbackEl.className = 'feedback success';
-            feedbackEl.innerText = `✅ Sucesso! Lote de ${quantidade} disparos processado com Job ID: ${resultado.jobId}`;
-          }
-
-          if (submitBtn) submitBtn.disabled = false;
-          if (bulkBtn) bulkBtn.disabled = false;
-        }
-      }, 700); // 700ms de intervalo entre as abas
-
-    } catch (erro) {
-      if (statusEl) statusEl.innerText = 'Erro';
+      if (statusEl) statusEl.innerText = 'Enviando...';
       if (feedbackEl) {
-        feedbackEl.className = 'feedback error';
-        feedbackEl.innerText = `❌ Falha: ${erro.message}`;
+        feedbackEl.className = 'feedback';
+        feedbackEl.innerText = 'Transmitindo lote para o servidor...';
       }
-      if (submitBtn) submitBtn.disabled = false;
-      if (bulkBtn) bulkBtn.disabled = false;
+      if (progressEl) progressEl.value = 0;
+
+      try {
+        const resposta = await fetch('https://wolf-moderacao.onrender.com/api/denuncias', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ numero, categoria, quantidade })
+        });
+
+        const resultado = await resposta.json();
+
+        if (!resposta.ok || !resultado.sucesso) {
+          throw new Error(resultado.mensagem || 'Erro ao processar na API.');
+        }
+
+        if (statusEl) statusEl.innerText = 'Disparando';
+        let atual = 0;
+
+        const intervalo = setInterval(() => {
+          if (atual < quantidade) {
+            atual++;
+            totalProcessadoGlobal++;
+
+            const porcentagem = Math.round((atual / quantidade) * 100);
+            
+            if (progressEl) progressEl.value = porcentagem;
+            if (countEl) countEl.innerText = totalProcessadoGlobal;
+            if (feedbackEl) {
+              feedbackEl.className = 'feedback success';
+              feedbackEl.innerText = `Abrindo aba ${atual} de ${quantidade} para o WhatsApp...`;
+            }
+
+            const textoMsg = encodeURIComponent(`Denúncia por violação: ${categoria}`);
+            const urlWhatsApp = `https://wa.me/${numero}?text=${textoMsg}`;
+            
+            window.open(urlWhatsApp, '_blank');
+
+          } else {
+            clearInterval(intervalo);
+            
+            if (statusEl) statusEl.innerText = 'Concluído';
+            if (feedbackEl) {
+              feedbackEl.className = 'feedback success';
+              feedbackEl.innerText = `✅ Sucesso! Lote de ${quantidade} disparos processado com Job ID: ${resultado.jobId}`;
+            }
+
+            if (submitBtn) submitBtn.disabled = false;
+            if (bulkBtn) bulkBtn.disabled = false;
+          }
+        }, 700);
+
+      } catch (erro) {
+        if (statusEl) statusEl.innerText = 'Erro';
+        if (feedbackEl) {
+          feedbackEl.className = 'feedback error';
+          feedbackEl.innerText = `❌ Falha: ${erro.message}`;
+        }
+        if (submitBtn) submitBtn.disabled = false;
+        if (bulkBtn) bulkBtn.disabled = false;
+      }
     }
-  }
-</script>
+  </script>
+</body>
+</html>
