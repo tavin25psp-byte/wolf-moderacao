@@ -55,8 +55,8 @@
     if (progressEl) progressEl.value = 0;
 
     try {
-      // Comunica com a API local (porta 3000)
-      const resposta = await fetch('http://localhost:3000/api/denuncias', {
+      // 🔗 URL ATUALIZADA PARA O SEU SERVIDOR NO RENDER
+      const resposta = await fetch('https://wolf-moderacao.onrender.com/api/denuncias', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ numero, categoria, quantidade })
