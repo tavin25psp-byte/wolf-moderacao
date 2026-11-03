@@ -6,17 +6,23 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// 1. Middlewares essenciais
 app.use(express.json());
 app.use(cors());
 
-// 👇 ADICIONE ISSO: Faz o Express servir os arquivos da pasta 'public' (HTML, CSS)
+// 2. Servir os arquivos estáticos (index.html, style.css, etc.) da pasta public
 app.use(express.static(path.join(__dirname, 'public')));
 
-// O restante das suas rotas de API continua aqui...
-app.post('/api/denuncias', (req, res) => {
-  // sua lógica de denúncias...
+// 3. Rate Limiter (Proteção contra abusos na API de denúncias)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 30,
+  message: { sucesso: false, mensagem: 'Muitas requisições originadas deste IP. Tente novamente em 15 minutos.' }
 });
+app.use('/api/denuncias', limiter);
 
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
-});
+// 4. Fila de processamento em memória
+const filaProcessamento = [];
+
+// Rota de verificação de status da API (Health Check)
+app.get('/api/health', (req, res) =>
