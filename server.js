@@ -31,10 +31,12 @@ function writeReports(reports) {
   fs.renameSync(tempFile, DATA_FILE);
 }
 
+// Consultar histórico
 app.get("/api/reports", (req, res) => {
   res.json(readReports());
 });
 
+// Registrar ocorrência individual
 app.post("/api/reports", (req, res) => {
   const { number, reason, notes } = req.body || {};
 
@@ -79,6 +81,66 @@ app.post("/api/reports", (req, res) => {
   res.status(201).json(report);
 });
 
+// NOVO: Processamento de denúncias em massa
+// Simulação local para projeto escolar
+app.post("/api/reports/bulk", (req, res) => {
+  const { number, reason, quantity } = req.body || {};
+
+  if (!number || !reason || !quantity) {
+    return res.status(400).json({
+      error: "Preencha todos os campos."
+    });
+  }
+
+  const total = Number(quantity);
+
+  if (!Number.isInteger(total) || total < 1 || total > 100) {
+    return res.status(400).json({
+      error: "A quantidade deve ser de 1 a 100."
+    });
+  }
+
+  const reports = readReports();
+
+  const batchId =
+    "WOLF-BATCH-" + Date.now().toString(36).toUpperCase();
+
+  const createdReports = [];
+
+  for (let i = 0; i < total; i++) {
+    const report = {
+      id: batchId + "-" + (i + 1),
+      number: String(number).trim(),
+      reason: String(reason).slice(0, 80),
+      notes: "Registro de demonstração escolar",
+      status: "Simulado",
+      batchId: batchId,
+      createdAt: new Date().toISOString()
+    };
+
+    createdReports.push(report);
+  }
+
+  reports.unshift(...createdReports);
+
+  try {
+    writeReports(reports);
+  } catch (error) {
+    return res.status(500).json({
+      error: "Não foi possível salvar os registros."
+    });
+  }
+
+  res.status(201).json({
+    success: true,
+    batchId: batchId,
+    total: createdReports.length,
+    status: "Simulação concluída",
+    reports: createdReports
+  });
+});
+
+// Status do servidor
 app.get("/api/health", (req, res) => {
   res.json({
     status: "online"
