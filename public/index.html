@@ -1,18 +1,23 @@
 <script>
   let totalProcessado = 0;
 
-  // 1. Processamento via Formulário (Submit)
-  document.getElementById('bulk-form').addEventListener('submit', function(e) {
-    e.preventDefault();
-    iniciarEnvioMassa();
+  // Aguarda o DOM carregar completamente antes de anexar o evento
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('bulk-form');
+    if (form) {
+      form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        iniciarEnvioMassa();
+      });
+    }
   });
 
-  // 2. Processamento disparado pelo botão de Denúncias em Massa
+  // Função global disparada pelo botão "Denúncias em massa"
   function ativarDenuncias() {
     iniciarEnvioMassa();
   }
 
-  // Função central de disparo em lote
+  // Função central de execução e feedback em lote
   function iniciarEnvioMassa() {
     const numeroInput = document.getElementById('bulk-number');
     const categoriaSelect = document.getElementById('bulk-reason');
@@ -25,51 +30,58 @@
     const submitBtn = document.querySelector('.primary');
     const bulkBtn = document.querySelector('.btn-denuncias');
 
-    // Validação dos campos obrigatórios
-    if (!numeroInput.value || !categoriaSelect.value) {
-      alert('Por favor, informe o número de referência e selecione uma categoria.');
-      numeroInput.focus();
+    // Validação estrita dos campos obrigatórios
+    if (!numeroInput || !numeroInput.value.trim()) {
+      alert('Por favor, informe o número de referência.');
+      if (numeroInput) numeroInput.focus();
       return;
     }
 
-    const numero = numeroInput.value;
+    if (!categoriaSelect || !categoriaSelect.value) {
+      alert('Por favor, selecione uma categoria.');
+      if (categoriaSelect) categoriaSelect.focus();
+      return;
+    }
+
+    const numero = numeroInput.value.trim();
     const categoria = categoriaSelect.value;
     const quantidade = parseInt(quantidadeInput.value, 10) || 5;
 
-    // Desativa os botões para evitar múltiplos cliques durante o processo
-    submitBtn.disabled = true;
-    bulkBtn.disabled = true;
+    // Desativa temporariamente os botões para evitar múltiplos disparos simultâneos
+    if (submitBtn) submitBtn.disabled = true;
+    if (bulkBtn) bulkBtn.disabled = true;
 
-    // Estado inicial do progresso
-    statusEl.innerText = 'Enviando...';
-    progressEl.value = 0;
+    // Configura o estado inicial do painel
+    if (statusEl) statusEl.innerText = 'Enviando...';
+    if (progressEl) progressEl.value = 0;
     
     let atual = 0;
 
-    // Simula o envio de cada registro com intervalo de tempo (ex: 350ms por item)
+    // Executa o envio progressivo item a item
     const intervalo = setInterval(() => {
       atual++;
       totalProcessado++;
 
-      // Calcula a porcentagem para a barra <progress>
       const porcentagem = Math.round((atual / quantidade) * 100);
-      progressEl.value = porcentagem;
+      
+      if (progressEl) progressEl.value = porcentagem;
+      if (countEl) countEl.innerText = totalProcessado;
+      if (feedbackEl) {
+        feedbackEl.innerText = `Processando lote: enviando requisição ${atual} de ${quantidade} para ${numero} (${porcentagem}%)...`;
+      }
 
-      // Atualiza os textos de feedback e contador na tela
-      countEl.innerText = totalProcessado;
-      feedbackEl.innerText = `Processando lote: enviando requisição ${atual} de ${quantidade} para ${numero} (${porcentagem}%)...`;
-
-      // Condição de término do lote
+      // Finalização do lote
       if (atual >= quantidade) {
         clearInterval(intervalo);
         
-        // Atualiza status final
-        statusEl.innerText = 'Concluído';
-        feedbackEl.innerText = `✅ Sucesso! Lote de ${quantidade} denúncias processado para a categoria "${categoria}".`;
+        if (statusEl) statusEl.innerText = 'Concluído';
+        if (feedbackEl) {
+          feedbackEl.innerText = `✅ Sucesso! Lote de ${quantidade} ocorrência(s) processado para a categoria "${categoria}".`;
+        }
 
-        // Reativa os botões
-        submitBtn.disabled = false;
-        bulkBtn.disabled = false;
+        // Restaura a interatividade dos botões
+        if (submitBtn) submitBtn.disabled = false;
+        if (bulkBtn) bulkBtn.disabled = false;
       }
     }, 350);
   }
