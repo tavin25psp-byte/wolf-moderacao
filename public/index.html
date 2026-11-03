@@ -11,81 +11,141 @@
 </head>
 
 <body>
-  <main class="shell">
+<main class="shell">
 
-    <header class="header">
-      <div class="mark">W</div>
+  <header class="header">
+    <div class="mark">W</div>
 
-      <div>
-        <p class="overline">WOLF • CENTRAL DE SEGURANÇA</p>
-        <h1>Painel de Moderação</h1>
-      </div>
+    <div>
+      <p class="overline">WOLF • CENTRAL DE SEGURANÇA</p>
+      <h1>Painel de Moderação</h1>
+    </div>
 
-      <span class="live">
-        <i></i> SISTEMA ONLINE
-      </span>
-    </header>
+    <span class="live">
+      <i></i> SISTEMA ONLINE
+    </span>
+  </header>
 
-    <section class="hero">
-      <div>
-        <span class="pill">
-          REGISTRO DE ABUSO • USO RESPONSÁVEL
-        </span>
+  <section class="hero">
+    <div>
+      <span class="pill">CENTRAL DE MODERAÇÃO</span>
 
-        <h2>
-          Organize denúncias<br>
-          <em>de forma responsável.</em>
-        </h2>
+      <h2>
+        Organize denúncias<br>
+        <em>de forma responsável.</em>
+      </h2>
 
-        <p>
-          Registre ocorrências de spam, golpes, ameaças ou
-          falsidade de identidade para acompanhamento.
-          O WOLF não suspende contas do WhatsApp.
-        </p>
-      </div>
+      <p>
+        Registre ocorrências e acompanhe os casos
+        documentados no painel.
+      </p>
+    </div>
 
-      <div class="shield" aria-hidden="true">🛡️</div>
-    </section>
+    <div class="shield">🛡️</div>
+  </section>
 
-    <section class="notice">
-      <strong>Importante:</strong>
-      denúncias falsas ou em massa podem prejudicar outras
-      pessoas. Use este painel somente para documentar
-      situações reais. A análise e qualquer suspensão
-      são feitas pelo WhatsApp.
-    </section>
+  <section class="notice">
+    <strong>Importante:</strong>
+    este sistema registra ocorrências para fins de
+    demonstração. Ele não envia denúncias ao WhatsApp
+    nem suspende contas.
+  </section>
 
-    <section class="grid">
+  <section class="grid">
 
-      <form class="panel" id="report-form">
+    <!-- REGISTRO INDIVIDUAL -->
 
-        <div class="panel-heading">
-          <div>
-            <span class="overline">NOVA OCORRÊNCIA</span>
-            <h3>Registrar caso</h3>
-          </div>
+    <form class="panel" id="report-form">
 
-          <span class="step">01</span>
+      <div class="panel-heading">
+        <div>
+          <span class="overline">NOVA OCORRÊNCIA</span>
+          <h3>Registrar caso</h3>
         </div>
 
-        <label for="number">
-          Número (com código do país)
+        <span class="step">01</span>
+      </div>
+
+      <label for="number">
+        Número de referência
+      </label>
+
+      <input
+        id="number"
+        name="number"
+        type="tel"
+        placeholder="+55 21 99999-9999"
+        maxlength="30"
+        required
+      >
+
+      <label for="reason">Categoria</label>
+
+      <select id="reason" name="reason" required>
+        <option value="">Selecione uma categoria</option>
+        <option>Spam ou golpe</option>
+        <option>Assédio ou ameaça</option>
+        <option>Impersonação</option>
+        <option>Outro abuso</option>
+      </select>
+
+      <label for="notes">
+        Descrição / evidência
+      </label>
+
+      <textarea
+        id="notes"
+        name="notes"
+        rows="4"
+        maxlength="1000"
+        placeholder="Descreva o ocorrido..."
+      ></textarea>
+
+      <button class="primary" type="submit">
+        Registrar ocorrência →
+      </button>
+
+      <div
+        class="feedback"
+        id="feedback"
+        role="status"
+        aria-live="polite"
+      ></div>
+
+    </form>
+
+    <!-- CENTRAL DE PROCESSAMENTO -->
+
+    <section class="panel">
+
+      <div class="panel-heading">
+        <div>
+          <span class="overline">PROCESSAMENTO</span>
+          <h3>Central de demonstração</h3>
+        </div>
+
+        <span class="step">02</span>
+      </div>
+
+      <form id="bulk-form">
+
+        <label for="bulk-number">
+          Número de referência
         </label>
 
         <input
-          id="number"
-          name="number"
+          id="bulk-number"
           type="tel"
-          inputmode="tel"
-          autocomplete="tel"
           placeholder="+55 21 99999-9999"
           maxlength="30"
           required
         >
 
-        <label for="reason">Categoria</label>
+        <label for="bulk-reason">
+          Categoria
+        </label>
 
-        <select id="reason" name="reason" required>
+        <select id="bulk-reason" required>
           <option value="">Selecione uma categoria</option>
           <option>Spam ou golpe</option>
           <option>Assédio ou ameaça</option>
@@ -93,91 +153,163 @@
           <option>Outro abuso</option>
         </select>
 
-        <label for="notes">
-          Descrição / evidência
+        <label for="bulk-quantity">
+          Quantidade de registros simulados
         </label>
 
-        <textarea
-          id="notes"
-          name="notes"
-          rows="4"
-          maxlength="1000"
-          placeholder="Descreva o ocorrido..."
-        ></textarea>
+        <input
+          id="bulk-quantity"
+          type="number"
+          min="1"
+          max="20"
+          value="5"
+          required
+        >
 
         <button class="primary" type="submit">
-          Registrar ocorrência <span>→</span>
+          Iniciar demonstração →
         </button>
-
-        <p class="hint">
-          Este registro é interno ao painel. Para denunciar
-          no WhatsApp, use a opção de denúncia no próprio
-          aplicativo e anexe as mensagens relevantes.
-        </p>
-
-        <div
-          class="feedback"
-          id="feedback"
-          role="status"
-          aria-live="polite"
-        ></div>
 
       </form>
 
-      <section class="panel history">
+      <div id="bulk-feedback" class="feedback"></div>
 
-        <div class="panel-heading">
-          <div>
-            <span class="overline">ACOMPANHAMENTO</span>
-            <h3>Registros recentes</h3>
-          </div>
-
-          <span class="step">02</span>
+      <div class="stats">
+        <div>
+          <strong id="bulk-count">0</strong>
+          <span>Registros simulados</span>
         </div>
 
-        <div class="stats">
-          <div>
-            <strong id="count">0</strong>
-            <span>ocorrências registradas</span>
-          </div>
-
-          <div>
-            <strong>Interno</strong>
-            <span>status do registro</span>
-          </div>
+        <div>
+          <strong id="bulk-status">Aguardando</strong>
+          <span>Status</span>
         </div>
+      </div>
 
-        <div id="records" class="records">
-          <div class="empty">
-            Nenhum registro por enquanto.
-          </div>
-        </div>
-
-        <button class="secondary" id="refresh" type="button">
-          Atualizar lista
-        </button>
-
-        <a
-          class="report-link"
-          href="https://faq.whatsapp.com/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Abrir Central de Ajuda do WhatsApp ↗
-        </a>
-
-      </section>
+      <progress
+        id="bulk-progress"
+        value="0"
+        max="100"
+        style="width:100%"
+      ></progress>
 
     </section>
 
-    <footer>
-      WOLF • Painel independente de registro — não afiliado ao WhatsApp.
-      <br>
-      Não use para perseguição, denúncias falsas ou banimentos em massa.
-    </footer>
+  </section>
 
-  </main>
+  <!-- HISTÓRICO -->
 
-  <script src="/app.js"></script>
+  <section class="panel history">
+
+    <div class="panel-heading">
+      <div>
+        <span class="overline">ACOMPANHAMENTO</span>
+        <h3>Registros recentes</h3>
+      </div>
+
+      <span class="step">03</span>
+    </div>
+
+    <div class="stats">
+      <div>
+        <strong id="count">0</strong>
+        <span>Ocorrências registradas</span>
+      </div>
+    </div>
+
+    <div id="records" class="records">
+      <div class="empty">
+        Nenhum registro por enquanto.
+      </div>
+    </div>
+
+    <button class="secondary" id="refresh" type="button">
+      Atualizar lista
+    </button>
+
+  </section>
+
+  <footer>
+    WOLF • Painel independente de registro.
+    <br>
+    Não afiliado ao WhatsApp.
+  </footer>
+
+</main>
+
+<script src="/app.js"></script>
+
+<script>
+const bulkForm = document.getElementById("bulk-form");
+
+bulkForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const number =
+    document.getElementById("bulk-number").value.trim();
+
+  const reason =
+    document.getElementById("bulk-reason").value;
+
+  const quantity =
+    Number(document.getElementById("bulk-quantity").value);
+
+  const feedback =
+    document.getElementById("bulk-feedback");
+
+  const status =
+    document.getElementById("bulk-status");
+
+  const progress =
+    document.getElementById("bulk-progress");
+
+  const counter =
+    document.getElementById("bulk-count");
+
+  feedback.textContent = "Processando demonstração...";
+  status.textContent = "Processando";
+  progress.value = 0;
+
+  try {
+    const response = await fetch("/api/reports/bulk", {
+      method: "POST",
+
+      headers: {
+        "Content-Type": "application/json"
+      },
+
+      body: JSON.stringify({
+        number,
+        reason,
+        quantity
+      })
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      throw new Error(result.error);
+    }
+
+    counter.textContent = result.total;
+    status.textContent = "Concluído";
+    progress.value = 100;
+
+    feedback.textContent =
+      "Demonstração concluída. Nenhuma denúncia foi enviada ao WhatsApp.";
+
+    if (typeof loadReports === "function") {
+      await loadReports();
+    }
+
+  } catch (error) {
+    status.textContent = "Erro";
+
+    feedback.textContent =
+      error.message || "Não foi possível processar.";
+  }
+});
+</script>
+
 </body>
 </html>
