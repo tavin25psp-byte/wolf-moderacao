@@ -4,7 +4,9 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <meta name="theme-color" content="#0b0c11">
+
   <title>WOLF • Moderação</title>
+
   <link rel="stylesheet" href="/style.css">
 </head>
 
@@ -37,12 +39,20 @@
 
         <p>
           Registre ocorrências de spam, golpes, ameaças ou
-          impersonação para acompanhamento. Este sistema não
-          envia denúncias ao WhatsApp nem aplica banimentos.
+          falsidade de identidade para acompanhamento.
+          O WOLF não suspende contas do WhatsApp.
         </p>
       </div>
 
       <div class="shield" aria-hidden="true">🛡️</div>
+    </section>
+
+    <section class="notice">
+      <strong>Importante:</strong>
+      denúncias falsas ou em massa podem prejudicar outras
+      pessoas. Use este painel somente para documentar
+      situações reais. A análise e qualquer suspensão
+      são feitas pelo WhatsApp.
     </section>
 
     <section class="grid">
@@ -67,7 +77,9 @@
           name="number"
           type="tel"
           inputmode="tel"
+          autocomplete="tel"
           placeholder="+55 21 99999-9999"
+          maxlength="30"
           required
         >
 
@@ -89,8 +101,8 @@
           id="notes"
           name="notes"
           rows="4"
-          maxlength="500"
-          placeholder="Descreva brevemente o ocorrido…"
+          maxlength="1000"
+          placeholder="Descreva o ocorrido..."
         ></textarea>
 
         <button class="primary" type="submit">
@@ -98,12 +110,17 @@
         </button>
 
         <p class="hint">
-          O registro fica neste servidor. Para denunciar uma
-          conta de verdade, use as opções de denúncia dentro
-          do WhatsApp.
+          Este registro é interno ao painel. Para denunciar
+          no WhatsApp, use a opção de denúncia no próprio
+          aplicativo e anexe as mensagens relevantes.
         </p>
 
-        <div class="feedback" id="feedback" role="status"></div>
+        <div
+          class="feedback"
+          id="feedback"
+          role="status"
+          aria-live="polite"
+        ></div>
 
       </form>
 
@@ -121,11 +138,11 @@
         <div class="stats">
           <div>
             <strong id="count">0</strong>
-            <span>ocorrências</span>
+            <span>ocorrências registradas</span>
           </div>
 
           <div>
-            <strong>Local</strong>
+            <strong>Interno</strong>
             <span>status do registro</span>
           </div>
         </div>
@@ -139,6 +156,15 @@
         <button class="secondary" id="refresh" type="button">
           Atualizar lista
         </button>
+
+        <a
+          class="report-link"
+          href="https://faq.whatsapp.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Abrir Central de Ajuda do WhatsApp ↗
+        </a>
 
       </section>
 
